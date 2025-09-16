@@ -1,27 +1,29 @@
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from 'vue';
+import type { PropType } from 'vue';
+import type { Event } from '@/types';
 
 const props = defineProps({
   event: {
-    type: Object,
+    type: Object as PropType<Event>,
     required: true
   }
 });
 
-const emit = defineEmits(['update', 'delete']);
+const emit = defineEmits<{
+  (e: 'update', payload: { id: string, data: Partial<Event> }): void
+  (e: 'delete', eventId: string): void
+}>();
 
 // --- Local Reactive State ---
 const isEditing = ref(false);
 
-// Local copies of the event data for the form fields.
-// This prevents "prop mutation" warnings.
 const editableTitle = ref(props.event.title);
 const editableDate = ref(props.event.date);
 
 // --- Methods ---
 const toggleEdit = () => {
   if (!isEditing.value) {
-    // When entering edit mode, reset local state to match current props
     editableTitle.value = props.event.title;
     editableDate.value = props.event.date;
   }
@@ -29,7 +31,6 @@ const toggleEdit = () => {
 };
 
 const handleSave = () => {
-  // Emit the changes to the parent component
   emit('update', {
     id: props.event.id,
     data: {
@@ -41,21 +42,17 @@ const handleSave = () => {
 };
 
 const handleDelete = () => {
-  // Emit the delete request to the parent component
   emit('delete', props.event.id);
-  // No need to change editing state, as the component will be removed
 };
 
 const handleCancel = () => {
   isEditing.value = false;
-  // No data is emitted, changes are discarded
 };
 
-// --- Watcher (optional but good practice) ---
-// If the underlying prop changes from a reforge while the user is editing,
-// it might be desirable to exit editing mode.
-watch(() => props.event, () => {
+watch(() => props.event, (newEvent) => {
   isEditing.value = false;
+  editableTitle.value = newEvent.title;
+  editableDate.value = newEvent.date;
 });
 </script>
 
