@@ -1,7 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import ControlBar from './components/ControlBar.vue';
 import TimelineContainer from './components/TimelineContainer.vue';
-import { useTimeline } from './composables/useTimeline.js';
+import { useTimeline } from './composables/useTimeline';
 
 const {
   timelineEvents,
